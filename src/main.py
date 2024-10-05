@@ -7,6 +7,11 @@ default_code = """with ui.row():
     ui.button('two')
 """
 
+ui.add_head_html(
+    """<script defer data-domain="playground.daelon.net" src="https://plausible.daelon.net/js/script.js"></script>""",
+    shared=True,
+)
+
 
 class PlaygroundPage:
     def __init__(self) -> None:
@@ -20,7 +25,7 @@ class PlaygroundPage:
                 self.code = ui.codemirror(
                     default_code, language='Python', theme='vscodeDark'
                 ).classes('w-full no-shadow')
-                
+
             with ui.column().classes('h-full w-1/2'):
                 ui.label('Generated UI:')
                 ui.label()
