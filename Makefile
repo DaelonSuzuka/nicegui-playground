@@ -19,7 +19,7 @@ run:
 # **************************************************************************** #
 # docker commands
 
-STACK_NAME := nicegui_playground
+STACK_NAME := playground
 
 # build the application's docker image locally
 image:

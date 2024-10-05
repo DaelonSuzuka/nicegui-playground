@@ -1,20 +1,17 @@
 version: "3.5"
 
-
 networks:
-  nicegui_network:
+  playground_network:
     external: true
 
 services:
   nicegui:
     image: nicegui_template
     networks:
-      - nicegui_network
-    environment:
-      - REDIS_OM_URL=redis://@redis:6379
+      - playground_network
     ports:
       - target: 8080
-        published: 8080
+        published: 9080
         mode: host
     volumes: 
       - ./src:/app/src # copy entire app into container
