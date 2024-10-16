@@ -1,16 +1,19 @@
 from nicegui import ui
 from bs4 import BeautifulSoup as bs
+import base64
 
 
 default_code = """with ui.row():
     ui.button('one')
-    ui.button('two')
+    with ui.button('two'):
+        ui.badge('1', color='red').props('floating')
 """
 
 ui.add_head_html(
     """<script defer data-domain="playground.daelon.net" src="https://plausible.daelon.net/js/script.js"></script>""",
     shared=True,
 )
+ui.add_head_html('<link href="https://unpkg.com/eva-icons@1.1.3/style/eva-icons.css" rel="stylesheet" />', shared=True)
 
 
 class PlaygroundPage:
@@ -39,25 +42,51 @@ class PlaygroundPage:
         self.html.clear()
 
     async def run(self):
-        new_code = self.code.value
+        new_code: str = self.code.value
 
         self.output.clear()
         try:
             with self.output:
-                exec(new_code)
+                exec(new_code)  #! lmao
 
             js = f'new XMLSerializer().serializeToString(document.getElementById("c{self.output.id}"))'
-            result = await ui.run_javascript(js)
+            result = await ui.run_javascript(js, timeout=3.0)
 
-            prettyHTML = bs(result).prettify()
+            soup = bs(result, features="html.parser")
+
+            for span in soup.find_all('span', 'q-focus-helper'):
+                span.decompose()
+
+            for span in soup.find_all('span', 'block'):
+                span.unwrap()
+
+            soup
+            prettyHTML = soup.prettify()
             self.html.set_content(prettyHTML)
+
+            data = base64.urlsafe_b64encode(new_code.encode()).decode()
+            ui.run_javascript(f"""
+                    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?data={data}";
+                    window.history.pushState({{path:newurl}}, '', newurl);
+            """)
         except Exception as e:
             ui.notify(e)
 
 
 @ui.page('/')
-async def index():
+async def index(data: str = None):
+    with ui.header().classes('justify-between'):
+        ui.button('NiceGUI Playground', on_click=lambda: ui.navigate.to('/')).props('flat color=white size=125%')
+        with ui.row():
+            ui.button(icon='eva-github', on_click=lambda: ui.navigate.to('https://github.com/DaelonSuzuka/nicegui-playground')).props('flat color=white size=125%')
+
     page = PlaygroundPage()
+    if data:
+        try:
+            code = base64.urlsafe_b64decode(data.encode()).decode()
+            page.code.value = code
+        except:
+            pass
 
     await page.run()
 
