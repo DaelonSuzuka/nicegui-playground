@@ -1,0 +1,3 @@
+https://playground.daelon.dev {
+    reverse_proxy nicegui:8080
+}

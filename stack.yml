@@ -2,19 +2,33 @@ version: "3.5"
 
 networks:
   playground_network:
-    external: true
 
 services:
+  caddy:
+    image: caddy:2.8.4
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - playground_network
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
+      - target: 443
+        published: 443
+        protocol: udp
+        mode: host
+    command: "caddy run --config /etc/caddy/Caddyfile --watch"
+
   nicegui:
     image: nicegui_template
     networks:
       - playground_network
-    ports:
-      - target: 8080
-        published: 9080
-        mode: host
-    volumes: 
-      - ./src:/app/src # copy entire app into container
+    # volumes: 
+    #   - ./src:/app/src # copy entire app into container
     depends_on:
       - redis
   
