@@ -1,4 +1,4 @@
-from nicegui import ui
+from nicegui import ui, app
 from bs4 import BeautifulSoup as bs
 import base64
 
@@ -36,7 +36,12 @@ class PlaygroundPage:
                 ui.label()
                 ui.label()
                 self.output = ui.card().classes('h-full w-full no-shadow border-[1px]')
-        ui.label('Generated HTML:')
+        with ui.row().classes('items-center'):
+            ui.label('Generated HTML:')
+            ui.label()
+            ui.label()
+            with ui.switch('Filter Elements', on_change=self.run).bind_value(app.storage.user, 'should_filter'):
+                ui.tooltip('Filter unimportant HTML elements like <q-focus-helper> and <span class="block">')
         self.html = ui.code(language='html').classes('w-full no-shadow')
 
     def clear(self):
@@ -56,13 +61,13 @@ class PlaygroundPage:
 
             soup = bs(result, features='html.parser')
 
-            for span in soup.find_all('span', 'q-focus-helper'):
-                span.decompose()
+            if app.storage.user['should_filter']:
+                for span in soup.find_all('span', 'q-focus-helper'):
+                    span.decompose()
 
-            for span in soup.find_all('span', 'block'):
-                span.unwrap()
+                for span in soup.find_all('span', 'block'):
+                    span.unwrap()
 
-            soup
             prettyHTML = soup.prettify()
             self.html.set_content(prettyHTML)
 
@@ -77,6 +82,9 @@ class PlaygroundPage:
 
 @ui.page('/')
 async def index(data: str = None):
+    if 'should_filter' not in app.storage.user:
+        app.storage.user['should_filter'] = True
+
     with ui.header().classes('justify-between'):
         ui.button('NiceGUI Playground', on_click=lambda: ui.navigate.to('/')).props('flat color=white size=125%')
         with ui.row():
@@ -99,4 +107,5 @@ async def index(data: str = None):
 ui.run(
     title='NiceGUI Playground',
     dark=True,
+    storage_secret='dsngjsgjksndgskgmKFRh',
 )
