@@ -71,11 +71,18 @@ class PlaygroundPage:
             prettyHTML = soup.prettify()
             self.html.set_content(prettyHTML)
 
+            if new_code == default_code:
+                ui.run_javascript("""
+                    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                    window.history.pushState({path:newurl}, '', newurl);
+                """)
+                return
             data = base64.urlsafe_b64encode(new_code.encode()).decode()
             ui.run_javascript(f"""
                     var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?data={data}";
                     window.history.pushState({{path:newurl}}, '', newurl);
             """)
+
         except Exception as e:
             ui.notify(e)
 
