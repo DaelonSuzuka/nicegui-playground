@@ -46,7 +46,7 @@ class PlaygroundPage:
 
     def clear(self):
         self.output.clear()
-        self.html.clear()
+        self.html.set_content('')
 
     async def run(self):
         new_code: str = self.code.value
