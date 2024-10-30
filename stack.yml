@@ -1,5 +1,9 @@
 version: "3.5"
 
+volumes:
+    caddy_data:
+    caddy_config:
+
 networks:
   playground_network:
     external: true
@@ -9,6 +13,8 @@ services:
     image: caddy:2.8.4
     volumes:
       - ./services/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
     networks:
       - playground_network
     ports:
@@ -22,7 +28,8 @@ services:
         published: 443
         protocol: udp
         mode: host
-    command: "caddy run --config /etc/caddy/Caddyfile --watch"
+    # command: "caddy run --config /etc/caddy/Caddyfile --watch"
+    command: "caddy run --config /etc/caddy/Caddyfile"
 
   nicegui:
     image: playground
