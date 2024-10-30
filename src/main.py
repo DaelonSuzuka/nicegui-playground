@@ -13,7 +13,10 @@ ui.add_head_html(
     """<script defer data-domain="playground.daelon.net" src="https://plausible.daelon.net/js/script.js"></script>""",
     shared=True,
 )
-ui.add_head_html('<link href="https://unpkg.com/eva-icons@1.1.3/style/eva-icons.css" rel="stylesheet" />', shared=True)
+ui.add_head_html(
+    '<link href="https://unpkg.com/eva-icons@1.1.3/style/eva-icons.css" rel="stylesheet" />',
+    shared=True,
+)
 
 
 class PlaygroundPage:
@@ -25,9 +28,8 @@ class PlaygroundPage:
                     with ui.row():
                         ui.button('clear', on_click=self.clear)
                         ui.button('run', on_click=self.run)
-                self.code = ui.codemirror(
-                    default_code, language='Python', theme='vscodeDark'
-                ).classes('w-full no-shadow')
+                self.code = ui.codemirror(default_code, language='Python', theme='vscodeDark')
+                self.code.classes('w-full no-shadow')
 
             with ui.column().classes('h-full w-1/2'):
                 ui.label('Generated UI:')
@@ -52,7 +54,7 @@ class PlaygroundPage:
             js = f'new XMLSerializer().serializeToString(document.getElementById("c{self.output.id}"))'
             result = await ui.run_javascript(js, timeout=3.0)
 
-            soup = bs(result, features="html.parser")
+            soup = bs(result, features='html.parser')
 
             for span in soup.find_all('span', 'q-focus-helper'):
                 span.decompose()
@@ -78,7 +80,10 @@ async def index(data: str = None):
     with ui.header().classes('justify-between'):
         ui.button('NiceGUI Playground', on_click=lambda: ui.navigate.to('/')).props('flat color=white size=125%')
         with ui.row():
-            ui.button(icon='eva-github', on_click=lambda: ui.navigate.to('https://github.com/DaelonSuzuka/nicegui-playground')).props('flat color=white size=125%')
+            ui.button(
+                icon='eva-github',
+                on_click=lambda: ui.navigate.to('https://github.com/DaelonSuzuka/nicegui-playground'),
+            ).props('flat color=white size=125%')
 
     page = PlaygroundPage()
     if data:
