@@ -7,7 +7,7 @@ services:
   caddy:
     image: caddy:2.8.4
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - .services/Caddyfile:/etc/caddy/Caddyfile
     networks:
       - playground_network
     ports:
@@ -24,11 +24,9 @@ services:
     command: "caddy run --config /etc/caddy/Caddyfile --watch"
 
   nicegui:
-    image: nicegui_template
+    image: playground
     networks:
       - playground_network
     # volumes: 
     #   - ./src:/app/src # copy entire app into container
-    depends_on:
-      - redis
   
