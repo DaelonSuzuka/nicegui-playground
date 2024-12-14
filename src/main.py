@@ -9,12 +9,11 @@ default_code = """with ui.row():
         ui.badge('1', color='red').props('floating')
 """
 
+
 ui.add_head_html(
-    """<script defer data-domain="playground.daelon.net" src="https://plausible.daelon.net/js/script.js"></script>""",
-    shared=True,
-)
-ui.add_head_html(
-    '<link href="https://unpkg.com/eva-icons@1.1.3/style/eva-icons.css" rel="stylesheet" />',
+    """<script defer data-domain="playground.daelon.net" src="https://plausible.daelon.net/js/script.js"></script>
+    <link href="https://unpkg.com/eva-icons@1.1.3/style/eva-icons.css" rel="stylesheet" />
+    """,
     shared=True,
 )
 
