@@ -1,7 +1,10 @@
-from nicegui import ui, app
-from bs4 import BeautifulSoup as bs
 import base64
 
+from bs4 import BeautifulSoup as bs
+from nicegui import app, ui
+from nicegui.events import KeyEventArguments
+
+from icons import icons
 
 default_code = """with ui.row():
     ui.button('one')
@@ -17,6 +20,51 @@ ui.add_head_html(
     shared=True,
 )
 
+GITHUB_URL = 'https://github.com/DaelonSuzuka/nicegui-playground'
+
+
+class Header:
+    def __init__(self) -> None:
+        with ui.header().classes('justify-between'):
+            with ui.row():
+                ui.item('NiceGUI Playground').props('clickable href="/"').style('font-size:175%')
+                ui.item('Icon Picker').props('clickable href="/icons"').style('font-size:175%')
+            with ui.row():
+                with ui.item().props(f'clickable href="{GITHUB_URL}"').style('font-size:175%'):
+                    ui.icon('eva-github')
+
+
+class IconPage:
+    def __init__(self) -> None:
+        self.search = ui.input(on_change=self.update_visibilty).props('debounce=250')
+
+        self.icon_container = ui.row()
+
+        self.icons: dict[str, ui.icon] = {}
+        with ui.row():
+            for name in icons:
+                icon = ui.icon(name, size='200%').tooltip(name)
+                icon.on('click', lambda x=name: self.copy(x))
+                self.icons[name] = icon
+
+        self.update_visibilty()
+
+    def copy(self, icon_name):
+        ui.notify(f'"{icon_name}" copied to clipboard')
+        ui.clipboard.write(icon_name)
+
+    def update_visibilty(self):
+        target = self.search.value
+
+        for name, icon in self.icons.items():
+            icon.visible = target in name
+
+
+@ui.page('/icons')
+def icon_page():
+    Header()
+    IconPage()
+
 
 class PlaygroundPage:
     def __init__(self) -> None:
@@ -26,7 +74,7 @@ class PlaygroundPage:
                     ui.label('Write NiceGUI code here:')
                     with ui.row():
                         ui.button('clear', on_click=self.clear)
-                        ui.button('run', on_click=self.run)
+                        ui.button('run', on_click=self.run).tooltip('Shift + Enter')
                 self.code = ui.codemirror(default_code, language='Python', theme='vscodeDark')
                 self.code.classes('w-full no-shadow')
 
@@ -91,13 +139,7 @@ async def index(data: str = None):
     if 'should_filter' not in app.storage.user:
         app.storage.user['should_filter'] = True
 
-    with ui.header().classes('justify-between'):
-        ui.button('NiceGUI Playground', on_click=lambda: ui.navigate.to('/')).props('flat color=white size=125%')
-        with ui.row():
-            ui.button(
-                icon='eva-github',
-                on_click=lambda: ui.navigate.to('https://github.com/DaelonSuzuka/nicegui-playground'),
-            ).props('flat color=white size=125%')
+    Header()
 
     page = PlaygroundPage()
     if data:
@@ -106,6 +148,12 @@ async def index(data: str = None):
             page.code.value = code
         except:
             pass
+
+    async def handle_key(e: KeyEventArguments):
+        if e.key == 'Enter' and e.modifiers.shift and e.action.keydown and not e.action.repeat:
+            await page.run()
+
+    keyboard = ui.keyboard(on_key=handle_key)
 
     await page.run()
 
