@@ -4,7 +4,7 @@ version = "0.1.0"
 requires-python = ">= 3.12.4"
 dependencies = [
   "beautifulsoup4",
-  "nicegui>=2.13.0",
+  "nicegui>=2.14.1",
 ]
 
 [tool.ruff]
